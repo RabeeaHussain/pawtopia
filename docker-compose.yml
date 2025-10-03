@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:14
+    container_name: pawtopia_db
+    restart: always
+    environment:
+      POSTGRES_USER: pawtopia
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: pawtopia
+    ports:
+      - "5433:5432"   # Changed host port to 5433
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pawtopia_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pawtopia.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+    ports:
+      - "5050:80"
+
+volumes:
+  postgres_data:
