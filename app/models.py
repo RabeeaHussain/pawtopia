@@ -54,3 +54,37 @@ class Order(Base):
     # Relationships
     user = relationship("User", back_populates="orders")
     pet = relationship("Pet", back_populates="orders")
+
+# 🛍️ Product model (for the shop)
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(String(255))
+    price = Column(Float, nullable=False)
+    stock = Column(Integer, nullable=False, default=0)
+    brand = Column(String(50))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship to product orders
+    product_orders = relationship("ProductOrder", back_populates="product", cascade="all, delete-orphan")
+
+
+# 🧾 ProductOrder model (each entry = one product bought by a user)
+class ProductOrder(Base):
+    __tablename__ = "product_orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Foreign keys
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+
+    quantity = Column(Integer, nullable=False, default=1)
+    total_price = Column(Float, nullable=False)
+
+    # Relationships
+    user = relationship("User")
+    product = relationship("Product", back_populates="product_orders")
