@@ -17,8 +17,8 @@ class User(Base):
     email = Column(String(120), unique=True, nullable=False, index=True)
     password_hash = Column(String(128), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    is_admin = Column(Integer, default=0)
 
-    # Relationship to orders
     orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
 
     # Utility methods
