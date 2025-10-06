@@ -9,26 +9,41 @@ from app.auth import create_access_token
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
+@router.post("/create", response_model=UserResponse)
+def create_normal_user(user: UserCreate, db: Session = Depends(get_db)):
+    """Register a normal (non-admin) user"""
+    if db.query(User).filter(User.email == user.email).first():
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    new_user = User(username=user.username, email=user.email)
+    new_user.set_password(user.password)
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = User(username=user.username, email=user.email)
+    
+    is_admin = user.email.lower() == "rabeeahussain2@gmail.com"
+
+    new_user = User(
+        
+        username=user.username,
+        email=user.email,
+        is_admin=is_admin,
+
+    )
     new_user.set_password(user.password)
+    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
-
-@router.post("/make_admin/{user_id}")
-def make_admin(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    user.is_admin = 1
-    db.commit()
-    return {"message": f"{user.username} is now an admin"}
-
 
 @router.post("/login", response_model=Token)
 def login(user: UserCreate, db: Session = Depends(get_db)):

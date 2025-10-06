@@ -9,16 +9,19 @@ class UserBase(BaseModel):
     email: EmailStr
 
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
+    username: str
+    email: EmailStr
     password: str
 
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     id: int
-    created_at: datetime
+    username: str
+    email: EmailStr
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # ----- Auth Schema -----
