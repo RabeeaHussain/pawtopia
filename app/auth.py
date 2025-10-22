@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends,HTTPException,status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext  # ✅ added for password hashing
 from app.models import User
 from app.database import get_db
 
@@ -13,6 +14,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password: str):
+    """Hashes a plaintext password."""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str):
+    """Verifies a plaintext password against a hashed one."""
+    return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()

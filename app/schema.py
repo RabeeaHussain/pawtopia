@@ -1,19 +1,26 @@
-# schemas.py
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
 
 
-# ----- User Schemas -----
+# ---- Base Schemas ----
+
 class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-
-
-class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
 
+
+# ---- Request Schemas ----
+
+class UserCreate(UserBase):
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+# ---- Response Schemas ----
 
 class UserResponse(BaseModel):
     id: int
@@ -21,28 +28,39 @@ class UserResponse(BaseModel):
     email: EmailStr
 
     class Config:
+        orm_mode = True
+
+class PetCreate(BaseModel):
+    name: str
+    species: str  # ✅ must be included!
+
+class VirtualPetBase(BaseModel):
+    name: str
+    species: str
+    hunger: int
+    happiness: int
+    energy: int
+
+class PetOut(BaseModel):
+    id: int
+    name: str
+    type: str
+
+    class Config:
         from_attributes = True
 
-
-# ----- Auth Schema -----
 class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str
 
 
-# ----- Order Schemas -----
-class OrderBase(BaseModel):
-    amount: float
-
-
-class OrderCreate(OrderBase):
-    pass
-
-
-class OrderResponse(OrderBase):
+class CartItemOut(BaseModel):
     id: int
     user_id: int
-    created_at: datetime
+    pet_id: int | None
+    product_id: int | None
+    quantity: int
+    price: float
 
     class Config:
         orm_mode = True
